@@ -3,9 +3,17 @@ from bs4 import BeautifulSoup
 from selenium import webdriver
 
 def main(book_name):
+    headers = {
+        'sec-fetch-dest': 'document',
+        'sec-fetch-mode': 'navigate',
+        'sec-fetch-site': 'same-origin',
+        'sec-fetch-user': '?1',
+        'upgrade-insecure-requests': '1',
+        'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 11_0_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Safari/537.36'
+    }
     book_name_edited = book_name.replace(' ', '%20')
     source = requests.get(f'https://www.labirint.ru/search/{book_name_edited}/'
-                          f'?stype=0&available=1&preorder=1&paperbooks=1', headers=self.headers).text
+                          f'?stype=0&available=1&preorder=1&paperbooks=1', headers=headers).text
     soup = BeautifulSoup(source, 'lxml')
 
     # пытаюсь найти ошибку в поиске
@@ -81,4 +89,3 @@ def main(book_name):
         return cheap_book
 
 main('Мастер и  маргарита')
-print('none')
