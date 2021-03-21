@@ -1,6 +1,5 @@
 import requests
 from bs4 import BeautifulSoup
-from selenium import webdriver
 
 def main(book_name):
     headers = {
@@ -13,12 +12,7 @@ def main(book_name):
     }
     book_name_edited = book_name.replace(' ', '%20')
     source = requests.get(f'https://www.labirint.ru/search/{book_name_edited}/'
-                          f'?stype=0&available=1&preorder=1&paperbooks=1').text
-
-    # driver = webdriver.Chrome()
-    # driver.get(f'https://www.labirint.ru/search/{book_name_edited}/'
-    #                       f'?stype=0&available=1&preorder=1&paperbooks=1')
-    # source = driver.page_source
+                          f'?stype=0&available=1&preorder=1&paperbooks=1', headers = headers).text
     soup = BeautifulSoup(source, 'lxml')
 
     # пытаюсь найти ошибку в поиске
@@ -34,20 +28,6 @@ def main(book_name):
             # выбираем самую первую книгу, тк это 100% совпадение
             # и берем с этой книги название + автора отдельно, чтобы отсеять всякие рецензии и прочее ненужное
             origin_book = soup[0].find('a', attrs={'class': 'cover'})['title']
-            # print(origin_book)
-
-            # НЕ ОЧЕНЬ АКТУАЛЬНО
-            # предусмотреть выбор автора здесь <----->
-            # 1) парсинг всех авторов
-            # 2) добавление их в список
-            # 3) вывод авторов со списка в кнопки телеграм
-            # 4) после нажатия на кнопку выбранного автора, его имя отправляется в чат
-            # П.С. данный выбор только для сайта лабиринт. Если выбирать для всех 3х сайтов, будет не очень красиво
-
-            # есть имя и у него ссылка
-            # берем имя и потом чекаем ссылки следующие
-            # если одна и та же ссылка - игнорируем
-            # если другая - добавляем в словарь определенный и выводим
 
             # если в тексте нет -, то значит нет автора
             if '-' not in origin_book:
@@ -65,12 +45,6 @@ def main(book_name):
 
             # перебор по всем карточкам книг на странице
             for i in soup:
-                # title = i.find('span',class_='product-title').text
-                # print(title)
-                # author_name = i.find('div',class_='product-author').text.replace('\n','')
-                # print(author_name)
-                # print('------')
-                # нахожу полное название книги, которое имеет вид: автор - название книги
                 full_name = i.find('a', attrs={'class': 'cover'})['title']
                 # если есть необходимый автор в названии книги
                 if author in full_name:
