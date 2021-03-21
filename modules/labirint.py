@@ -79,3 +79,5 @@ def main(book_name):
                 pass
         # возвращаю словарь с самой дешевой книгой
         return cheap_book
+
+main('Мастер и  маргарита')
