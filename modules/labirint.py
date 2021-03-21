@@ -80,5 +80,3 @@ def main(book_name):
             return None
         # возвращаю словарь с самой дешевой книгой
     return cheap_book
-
-print(main('Мастер и маргарита'))
