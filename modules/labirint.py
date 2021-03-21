@@ -3,7 +3,6 @@ from bs4 import BeautifulSoup
 from selenium import webdriver
 
 def main(book_name):
-    # book_name = 'мастер и маргарита'
     book_name_edited = book_name.replace(' ', '%20')
     source = requests.get(f'https://www.labirint.ru/search/{book_name_edited}/'
                           f'?stype=0&available=1&preorder=1&paperbooks=1', headers=self.headers).text
