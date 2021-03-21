@@ -81,3 +81,4 @@ def main(book_name):
         return cheap_book
 
 main('Мастер и  маргарита')
+print('null')
