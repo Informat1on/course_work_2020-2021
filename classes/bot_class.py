@@ -12,6 +12,7 @@ import logging
 from telegram import ReplyKeyboardRemove, ReplyKeyboardMarkup, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import (Updater, CommandHandler, MessageHandler, Filters, ConversationHandler, callbackqueryhandler)
 import time
+import modules.labirint as Labirint
 
 
 class FindBookBot:
@@ -83,7 +84,7 @@ class FindBookBot:
         self.bot.send_message(text="🔍", chat_id=update.message.chat.id)
         # кидаю в переменную лабиринт словарь с единственным элементом - смая дешевая книга и ее метаданные
         # присваиваю переменным словари, в которых находятся самые дешевае книги и их параметры
-        labirint = self.labirint(book_name)
+        labirint = Labirint.main('some name')
         chitai_gorod = self.chitai_gorod(book_name)
 
         print(bool(chitai_gorod))
