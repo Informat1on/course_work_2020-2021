@@ -6,6 +6,8 @@ def main(book_name):
     book_name = book_name.replace(' ', '%20')
     browser = webdriver.Chrome()
     try:
+        browser.get('https://www.m.chitai-gorod.ru/')
+        time.sleep(10)
         browser.get(f'https://www.m.chitai-gorod.ru/search/result/?q={book_name}')
         time.sleep(10)
         source = browser.page_source
