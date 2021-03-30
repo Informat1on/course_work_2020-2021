@@ -84,7 +84,7 @@ class FindBookBot:
         self.bot.send_message(text="🔍", chat_id=update.message.chat.id)
         # кидаю в переменную лабиринт словарь с единственным элементом - смая дешевая книга и ее метаданные
         # присваиваю переменным словари, в которых находятся самые дешевае книги и их параметры
-        labirint = Labirint.main('some name')
+        labirint = Labirint.main('муму')
         chitai_gorod = self.chitai_gorod(book_name)
 
         print(bool(chitai_gorod))
