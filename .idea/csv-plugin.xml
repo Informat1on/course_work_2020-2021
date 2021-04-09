@@ -17,6 +17,13 @@
             </Attribute>
           </value>
         </entry>
+        <entry key="/modules/test.py">
+          <value>
+            <Attribute>
+              <option name="separator" value=":" />
+            </Attribute>
+          </value>
+        </entry>
         <entry key="/start.py">
           <value>
             <Attribute>

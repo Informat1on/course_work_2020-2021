@@ -2,13 +2,30 @@ from selenium import webdriver
 from bs4 import BeautifulSoup
 import time
 
+option = webdriver.ChromeOptions()
+chrome_prefs = {}
+option.experimental_options["prefs"] = chrome_prefs
+chrome_prefs["profile.default_content_settings"] = {"images": 2}
+chrome_prefs["profile.managed_default_content_settings"] = {"images": 2}
+option.add_argument('--window-size=480,100')
+# option.add_argument('--headless')
+# option.add_argument('--window-size=1000,1000')
+browser = webdriver.Chrome(options=option)
+
 def main(book_name):
     book_name = book_name.replace(' ', '%20')
-    browser = webdriver.Chrome()
+    # browser = webdriver.Chrome()
     try:
-        browser.get('https://www.m.chitai-gorod.ru/')
+        browser.add_cookie({
+            'sec-fetch-dest': 'document',
+            'sec-fetch-mode': 'navigate',
+            'sec-fetch-site': 'same-origin',
+            'sec-fetch-user': '?1',
+            'upgrade-insecure-requests': '1',
+            'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 11_0_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Safari/537.36'})
+        browser.get('https://www.chitai-gorod.ru/')
         time.sleep(10)
-        browser.get(f'https://www.m.chitai-gorod.ru/search/result/?q={book_name}')
+        browser.get(f'https://www.chitai-gorod.ru/search/result/?q={book_name}')
         time.sleep(10)
         source = browser.page_source
         # нужно предварительно написать pip install bs4 и lxml
