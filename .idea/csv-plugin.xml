@@ -10,6 +10,13 @@
             </Attribute>
           </value>
         </entry>
+        <entry key="/modules/fkniga.py">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
         <entry key="/modules/labirint.py">
           <value>
             <Attribute>
