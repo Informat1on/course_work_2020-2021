@@ -2,6 +2,8 @@ import requests
 from bs4 import BeautifulSoup
 
 def main(book_name):
+    cheap_book = {}
+
     headers = {
         'sec-fetch-dest': 'document',
         'sec-fetch-mode': 'navigate',
@@ -41,7 +43,6 @@ def main(book_name):
             # минимальная цена для сравнения
             min_price = 9999999
             # самая дешевая книга на сайте
-            cheap_book = {}
 
             # перебор по всем карточкам книг на странице
             for i in soup:
@@ -76,7 +77,8 @@ def main(book_name):
                 else:
                     pass
         except:
+            cheap_book['price'] = None
             # значит требуемой книги нет в наличии
-            return None
+            # return None
         # возвращаю словарь с самой дешевой книгой
     return cheap_book
