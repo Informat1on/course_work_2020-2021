@@ -1,12 +1,14 @@
 import requests
 from bs4 import BeautifulSoup
 
-string  = u'Муму'
-string.encode('Windows-1251').decode('utf-8'
-)
-print(string)
+def main(string):
+    word = string.encode('cp1251')
+    request = ''
+    # нужно перевести в hex
+    for i in word:
+        hexy = hex(i).lstrip("0x").rstrip("L").upper()
+        request += '%' + hexy
 
-def main(request):
     cheap_book = {}
     min_price = 9999999
 
