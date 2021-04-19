@@ -46,3 +46,5 @@ def main(request):
     except Exception as e:
         cheap_book['price'] = None
         print(e)
+
+    return cheap_book
