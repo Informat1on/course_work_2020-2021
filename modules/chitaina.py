@@ -8,9 +8,38 @@ def main(request):
     source = requests.get(f'https://chitaina.ru/search/result?setsearchdata=1&category_id=&include_subcat=1&xs_categories=&search_type=all&search={request}').text
     soup = BeautifulSoup(source,'lxml')
 
-    items = soup.find_all('div',class_='shell')
-    for item in items:
-        name = item.find('strong').text
-        print(name)
+    try:
+        # нахожу имя автора, чтобы отсеять ненужные книги
+        book_author = soup.find('div',class_='shell').find('span',class_='designation').find('span').text.split(' ')[0]
+        # нахожу все  карточки товаров
+        items = soup.find_all('div',class_='shell')
+        # делаю перебор элементов
+        for item in items:
+            author = item.find('span',class_='designation').find('span').text
+            # если автор нужный
+            if (author.upper().startswith(book_author.upper()) or author.upper().endswith(book_author.upper())):
+                price = int(item.find('span',class_='numbers').text.split(' ')[0])
+                # если цена меньше минимальной
+                if (price < min_price):
+                    min_price = price
+                    # достаю нужные данные
+                    name = item.find('strong').text
+                    link = 'https://chitaina.ru' + item.find('a').get('href')
+                    image = item.find('img').get('src')
 
-main('Муму')
+                    # добавляю в словарь
+                    cheap_book['name'] = name
+                    cheap_book['price'] = price
+                    cheap_book['link'] = link
+                    cheap_book['image'] = image
+
+                else:
+                    continue
+            else:
+                continue
+    # если случилось что то - печатаем ошибку
+    except Exception as e:
+        cheap_book['price'] = None
+        print(e)
+
+    return cheap_book
