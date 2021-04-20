@@ -54,7 +54,7 @@ def main(string):
             except:
                 continue
     except Exception as e:
-        print(e)
+        print(f'[Combook Exception]: {e}')
         cheap_book['price'] = None
 
 

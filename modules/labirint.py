@@ -76,8 +76,9 @@ def main(book_name):
                         pass
                 else:
                     pass
-        except:
+        except Exception as e:
             cheap_book['price'] = None
+            print(f'[Labirint Exception]: {e}')
             # значит требуемой книги нет в наличии
             # return None
         # возвращаю словарь с самой дешевой книгой

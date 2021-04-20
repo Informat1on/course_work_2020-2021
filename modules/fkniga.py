@@ -34,7 +34,8 @@ def main(request):
                     cheap_book['image'] = image
 
     # если не удается - даем сигнал о том, что не нужно проверять эту переменную
-    except:
+    except Exception as e:
         cheap_book['price'] = None
+        print(f'[Fkniga Exception]: {e}')
 
     return cheap_book

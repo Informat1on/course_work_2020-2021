@@ -12,29 +12,39 @@ def main(request):
         items = soup.find_all('li',class_='product')
         for item in items:
             name = item.find('h2').text
+            print(name)
             # проверяю на название
             # если в названии есть требуемый запрос то идем дальше по циклу
-            if (name.upper().startswith(request.upper()) or name.upper().endswith(request.upper())):
-                price = int(item.find_all('bdi')[1].text.split('\xa0')[0])
-                # тк мы ищем минимальную цену, то сравниваем
-                if (price < min_price):
-                    min_price = price
-                    link = item.find('a').get('href')
-                    image = item.find('img').get('src')
+            keywords = [request, request.lower(), request.upper()]
+            try:
+                if (keywords in name):
+                    price = int(item.find_all('bdi')[1].text.split('\xa0')[0])
+                    # тк мы ищем минимальную цену, то сравниваем
+                    if (price < min_price):
+                        min_price = price
+                        link = item.find('a').get('href')
+                        image = item.find('img').get('src')
 
-                    # добавляю в словарь
-                    cheap_book['name'] = name
-                    cheap_book['price'] = price
-                    cheap_book['link'] = link
-                    cheap_book['image'] = image
+                        # добавляю в словарь
+                        cheap_book['name'] = name
+                        cheap_book['price'] = price
+                        cheap_book['link'] = link
+                        cheap_book['image'] = image
+
+                    else:
+                        continue
                 else:
-                    continue
-            else:
-                pass
+                    pass
+
+            except Exception as e:
+                print(f'[Fitabooks Exception]: {e}')
+                continue
+
     except Exception as e:
         # иначе даем понять, что проверять не нужно
         cheap_book['price'] = None
-        print(e)
-
+        print(f'[Fitabooks Exception]: {e}')
 
     return cheap_book
+
+print(main('Не ной'))

@@ -40,6 +40,6 @@ def main(request):
     # если случилось что то - печатаем ошибку
     except Exception as e:
         cheap_book['price'] = None
-        print(e)
+        print(f'[Chitaina Exception]: {e}')
 
     return cheap_book

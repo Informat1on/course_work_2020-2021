@@ -41,7 +41,8 @@ def main(request):
                 continue
 
     # если все неудачно
-    except:
+    except Exception as e:
         cheap_book['price'] = None
+        print(f'[Polka23 Exception]: {e}')
 
     return cheap_book
