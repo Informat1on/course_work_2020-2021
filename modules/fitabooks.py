@@ -12,10 +12,9 @@ def main(request):
         items = soup.find_all('li',class_='product')
         for item in items:
             name = item.find('h2').text
-            print(name)
             # проверяю на название
             # если в названии есть требуемый запрос то идем дальше по циклу
-            keywords = [request, request.lower(), request.upper()]
+            keywords = [request, request.lower(), request.upper(), 'Плакат', 'плакат', 'Обложка', 'обложка']
             try:
                 for keyword in keywords:
                     if (keyword in name):

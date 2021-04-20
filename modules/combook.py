@@ -34,7 +34,7 @@ def main(string):
                     pass
 
                 name = item.find('img').get('title')
-                keywords = [string, string.lower(), string.upper()]
+                keywords = [request, request.lower(), request.upper(), 'Плакат', 'плакат', 'Обложка', 'обложка']
                 for keyword in keywords:
                     if (keyword in name):
                         price = int(float(item.find('div',class_='price').get('product_price')))
