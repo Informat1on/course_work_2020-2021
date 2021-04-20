@@ -48,5 +48,3 @@ def main(request):
         print(f'[Bookvoed Exception]: {e}')
 
     return cheap_book
-
-print(main('Не ной'))
