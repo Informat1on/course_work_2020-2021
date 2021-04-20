@@ -14,10 +14,10 @@ def main(request):
             name = item.find('h2').text
             # проверяю на название
             # если в названии есть требуемый запрос то идем дальше по циклу
-            keywords = [request, request.lower(), request.upper(), 'Плакат', 'плакат', 'Обложка', 'обложка']
+            keywords = [request, request.lower(), request.upper()]
             try:
                 for keyword in keywords:
-                    if (keyword in name):
+                    if (keyword in name and ('Плакат' not in name or 'плакат' not in name or 'Обложка' not in name or 'обложка' not in name)):
                         price = int(item.find_all('bdi')[1].text.split('\xa0')[0])
                         # тк мы ищем минимальную цену, то сравниваем
                         if (price < min_price):
