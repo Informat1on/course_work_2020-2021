@@ -17,24 +17,25 @@ def main(request):
             # если в названии есть требуемый запрос то идем дальше по циклу
             keywords = [request, request.lower(), request.upper()]
             try:
-                if (keywords in name):
-                    price = int(item.find_all('bdi')[1].text.split('\xa0')[0])
-                    # тк мы ищем минимальную цену, то сравниваем
-                    if (price < min_price):
-                        min_price = price
-                        link = item.find('a').get('href')
-                        image = item.find('img').get('src')
+                for keyword in keywords:
+                    if (keyword in name):
+                        price = int(item.find_all('bdi')[1].text.split('\xa0')[0])
+                        # тк мы ищем минимальную цену, то сравниваем
+                        if (price < min_price):
+                            min_price = price
+                            link = item.find('a').get('href')
+                            image = item.find('img').get('src')
 
-                        # добавляю в словарь
-                        cheap_book['name'] = name
-                        cheap_book['price'] = price
-                        cheap_book['link'] = link
-                        cheap_book['image'] = image
+                            # добавляю в словарь
+                            cheap_book['name'] = name
+                            cheap_book['price'] = price
+                            cheap_book['link'] = link
+                            cheap_book['image'] = image
 
+                        else:
+                            continue
                     else:
                         continue
-                else:
-                    pass
 
             except Exception as e:
                 print(f'[Fitabooks Exception]: {e}')
@@ -46,5 +47,3 @@ def main(request):
         print(f'[Fitabooks Exception]: {e}')
 
     return cheap_book
-
-print(main('Не ной'))

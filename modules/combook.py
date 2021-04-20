@@ -35,22 +35,23 @@ def main(string):
 
                 name = item.find('img').get('title')
                 keywords = [string, string.lower(), string.upper()]
-                if (keywords in name):
-                    price = int(float(item.find('div',class_='price').get('product_price')))
-                    if (price < min_price):
-                        min_price  = price
+                for keyword in keywords:
+                    if (keyword in name):
+                        price = int(float(item.find('div',class_='price').get('product_price')))
+                        if (price < min_price):
+                            min_price  = price
 
-                        link = 'https://www.combook.ru' + item.find('a').get('href')
-                        image = 'https://www.combook.ru' + item.find('img').get('src')
+                            link = 'https://www.combook.ru' + item.find('a').get('href')
+                            image = 'https://www.combook.ru' + item.find('img').get('src')
 
-                        cheap_book['name'] = name
-                        cheap_book['price'] = price
-                        cheap_book['link'] = link
-                        cheap_book['image'] = image
+                            cheap_book['name'] = name
+                            cheap_book['price'] = price
+                            cheap_book['link'] = link
+                            cheap_book['image'] = image
+                        else:
+                            pass
                     else:
-                        pass
-                else:
-                    pass
+                        continue
             except:
                 continue
     except Exception as e:
@@ -59,3 +60,4 @@ def main(string):
 
 
     return cheap_book
+# при запросе не ной находит обложку для паспорта. нужно исправить
