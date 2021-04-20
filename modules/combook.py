@@ -33,16 +33,13 @@ def main(string):
                     # иначе в наличии
                     pass
 
+                name = item.find('img').get('title')
+                keywords = [string, string.lower(), string.upper()]
+                if (keywords in name):
+                    price = int(float(item.find('div',class_='price').get('product_price')))
+                    if (price < min_price):
+                        min_price  = price
 
-                price = int(float(item.find('div',class_='price').get('product_price')))
-
-                if (price < min_price):
-                    min_price  = price
-
-                    name = item.find('img').get('title')
-                    keywords = [string, string.lower(),string.upper()]
-
-                    if (keywords in name):
                         link = 'https://www.combook.ru' + item.find('a').get('href')
                         image = 'https://www.combook.ru' + item.find('img').get('src')
 
@@ -55,7 +52,7 @@ def main(string):
                 else:
                     pass
             except:
-                price = 999999
+                continue
     except Exception as e:
         print(e)
         cheap_book['price'] = None
