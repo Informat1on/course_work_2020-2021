@@ -36,7 +36,7 @@ def main(string):
                 name = item.find('img').get('title')
                 keywords = [request, request.lower(), request.upper()]
                 for keyword in keywords:
-                    if (keyword in name and ('Плакат' not in name or 'плакат' not in name or 'Обложка' not in name or 'обложка' not in name)):
+                    if (keyword in name and ('Плакат' not in name or 'плакат' not in name or 'Обложка' not in name or 'обложка' not in name )):
                         price = int(float(item.find('div',class_='price').get('product_price')))
                         if (price < min_price):
                             min_price  = price

@@ -11,11 +11,11 @@ def main(request):
     try:
         items = soup.find_all('div',class_='Zg')
         # тк 1 запрос самый точный, сохраняем фамилию автора для сравнения
-        book_author = soup.find('div', class_='fq').text.split(' ')[0]
+        book_author = soup.find('div', class_='fq').text.split(' ')[0].replace(' ','').replace('\n','')
 
     #   перебираю каждую карточку продукта
         for item in items:
-            author = item.find('div', class_='fq').text
+            author = item.find('div', class_='fq').text.replace('  ','').replace('\n','')
             # если это нужный автор
             if (author.upper().startswith(book_author.upper()) or author.upper().endswith(book_author.upper())):
                 # пытаюсь получить цену, если ее нет, то товара нет в наличии
@@ -28,8 +28,8 @@ def main(request):
                 if (price < min_price):
                     min_price = price
                     # получаю имя, ссылку, картину
-                    name = item.find('a',class_='vIb eq').text
-                    link = item.find('a',class_='vIb eq').get('href')
+                    name = item.find('a',class_='eq').text.replace('  ','').replace('\n','')
+                    link = item.find('a',class_='eq').get('href')
                     image = 'https://www.bookvoed.ru' + item.find('img').get('src')
 
                     # добавляю в словарь
@@ -48,3 +48,5 @@ def main(request):
         print(f'[Bookvoed Exception]: {e}')
 
     return cheap_book
+
+print(main('Не ной'))
