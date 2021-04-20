@@ -39,14 +39,19 @@ def main(string):
                 if (price < min_price):
                     min_price  = price
 
-                    link = 'https://www.combook.ru' + item.find('a').get('href')
                     name = item.find('img').get('title')
-                    image = 'https://www.combook.ru' + item.find('img').get('src')
+                    keywords = [string, string.lower(),string.upper()]
 
-                    cheap_book['name'] = name
-                    cheap_book['price'] = price
-                    cheap_book['link'] = link
-                    cheap_book['image'] = image
+                    if (keywords in name):
+                        link = 'https://www.combook.ru' + item.find('a').get('href')
+                        image = 'https://www.combook.ru' + item.find('img').get('src')
+
+                        cheap_book['name'] = name
+                        cheap_book['price'] = price
+                        cheap_book['link'] = link
+                        cheap_book['image'] = image
+                    else:
+                        pass
                 else:
                     pass
             except:

@@ -12,7 +12,7 @@ import logging
 from telegram import ReplyKeyboardRemove, ReplyKeyboardMarkup, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import (Updater, CommandHandler, MessageHandler, Filters, ConversationHandler, callbackqueryhandler)
 import time
-import modules.labirint as Labirint
+from modules import bookvoed as bk, chitaina as cht, combook as cmbk, fitabooks as fitb, fkniga as fkng, labirint as lbrn, polka23 as pl23, mir_shkolnika as mrshk
 
 
 class FindBookBot:
@@ -22,7 +22,7 @@ class FindBookBot:
         self.updater = Updater(token=bot_token)  # добавляем апдейтер
         self.dispatcher = self.updater.dispatcher  # добавляем диспатчер
         # обьяляю состояния
-        self.BUTTON_BEGIN, self.AUTHOR, self.SEARCH, self.END = range(4)
+        self.BUTTON_BEGIN, self.BOOK_NAME, self.SEARCH, self.END = range(4)
 
         # Включить ведение журнала
         logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -41,7 +41,7 @@ class FindBookBot:
 
             states={
                 self.BUTTON_BEGIN: [CommandHandler('start', self.begin), MessageHandler(Filters.text, self.button)],
-                self.AUTHOR: [CommandHandler('start', self.begin), MessageHandler(Filters.text, self.author)],
+                self.BOOK_NAME: [CommandHandler('start', self.begin), MessageHandler(Filters.text, self.book_name)],
                 self.SEARCH: [CommandHandler('start', self.begin), MessageHandler(Filters.text, self.search)]
             },
 
@@ -73,10 +73,11 @@ class FindBookBot:
         self.bot.send_message(text="Введите название книги: ", chat_id=update.message.chat.id,
                               reply_markup=ReplyKeyboardRemove())
         # перехожу на другое состояние
-        return self.AUTHOR
+        return self.BOOK_NAME
 
     # функция обработки имени автора
-    def author(self, update, context):
+    def book_name(self, update, context):
+
         book_name = update.message.text
         print(f'Начало поиска книг по названию {book_name}')
 
@@ -84,41 +85,65 @@ class FindBookBot:
         self.bot.send_message(text="🔍", chat_id=update.message.chat.id)
         # кидаю в переменную лабиринт словарь с единственным элементом - смая дешевая книга и ее метаданные
         # присваиваю переменным словари, в которых находятся самые дешевае книги и их параметры
-        labirint = Labirint.main('муму')
-        chitai_gorod = self.chitai_gorod(book_name)
 
-        print(bool(chitai_gorod))
-        print(bool(labirint))
+        bookvoed = bk.main(book_name)
+        chitaina = cht.main(book_name)
+        combook = cmbk.main(book_name)
+        fitabooks = fitb.main(book_name)
+        fkniga = fkng.main(book_name)
+        labirint = lbrn.main(book_name)
+        mir_shkolnika = mrshk.main(book_name)
+        polka23 = pl23.main(book_name)
+        arr = [
+            bookvoed, chitaina, combook, fitabooks, fkniga, labirint, mir_shkolnika, polka23
+        ]
 
+        cheap_book = {}
+        cheap_book['price'] = 999999
+
+        for i in arr:
+            print(i)
+            try:
+                if (i['price'] is not None and i['price'] < cheap_book['price']):
+                    cheap_book = i
+                else:
+                    continue
+            except:
+                pass
+
+        print(cheap_book)
         # придумать обработку исключения, если где то нет данных, то вывести другой магазин
         # переработать условия и циклы для корректного вывода
         # где цена меньше там и выбираем
-        try:
-            if labirint['price'] < chitai_gorod['price']:
-                decision = labirint
-                print(f"Цена на Лабиринт {labirint['price']} < цена на Читай Город {chitai_gorod['price']}")
+        # try:
+        #     if labirint['price'] < chitai_gorod['price']:
+        #         decision = labirint
+        #         print(f"Цена на Лабиринт {labirint['price']} < цена на Читай Город {chitai_gorod['price']}")
+        #
+        #     else:
+        #         decision = chitai_gorod
+        #         print(f"Цена на Лабиринт {labirint['price']} > цена на Читай Город {chitai_gorod['price']}")
+        # except:
+        #     decision = self.findNone(chitai_gorod,labirint)[1]
+        #     print(decision)
+        #
+        # # если нашло книгу
+        # if decision is not None:
+        #     # update.message.reply_text(labirint['name'])
+        #     self.bot.send_photo(photo=decision['image'],
+        #                         caption=f"{decision['name']}\n[Ссылка на книгу]({decision['link']})\nЦена книги: {decision['price']}₽",
+        #                         chat_id=update.message.chat.id, parse_mode='Markdown')
+        # # иначе
+        # else:
+        #     self.bot.send_message(text="По указанному названию книг не найдено 😥", chat_id=update.message.chat.id)
+        #
+        # # нужно вывести клавиатуру с надписью "найти снова"
+        # # поработать с reply markup
+        # self.bot.send_message(text="🔍 Для того, чтобы повторить поиск, введите название книги ниже: ",
+        #                       chat_id=update.message.chat.id)
 
-            else:
-                decision = chitai_gorod
-                print(f"Цена на Лабиринт {labirint['price']} > цена на Читай Город {chitai_gorod['price']}")
-        except:
-            decision = self.findNone(chitai_gorod,labirint)[1]
-            print(decision)
-
-        # если нашло книгу
-        if decision is not None:
-            # update.message.reply_text(labirint['name'])
-            self.bot.send_photo(photo=decision['image'],
-                                caption=f"{decision['name']}\n[Ссылка на книгу]({decision['link']})\nЦена книги: {decision['price']}₽",
-                                chat_id=update.message.chat.id, parse_mode='Markdown')
-        # иначе
-        else:
-            self.bot.send_message(text="По указанному названию книг не найдено 😥", chat_id=update.message.chat.id)
-
-        # нужно вывести клавиатуру с надписью "найти снова"
-        # поработать с reply markup
-        self.bot.send_message(text="🔍 Для того, чтобы повторить поиск, введите название книги ниже: ",
-                              chat_id=update.message.chat.id)
+    def search(self, update, context):
+        pass
 
     def findNone(self,arg1,arg2):
         # если в переменных есть значения
