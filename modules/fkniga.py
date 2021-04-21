@@ -19,19 +19,27 @@ def main(request):
             # получаю название книги
             name = i .find('a',class_='card__title').text
             # если в названии находится требуемый запрос
-            if (name.startswith(request.capitalize()) or name.endswith(request.capitalize())):
-                # далее находим самую дешевую
-                price = int(i.find('div',class_='price price--ruble').text)
-                link = 'https://fkniga.ru' + i.find('div',class_='card__body').find('a').get('href')
-                try:
-                    image = 'https://fkniga.ru' +  i.find('div',class_='card__photo').find('img').get('src')
-                except:
-                    image = 'https://www.allianceplast.com/wp-content/uploads/2017/11/no-image.png'
-                if (price < min_price):
-                    cheap_book['name'] = name
-                    cheap_book['price'] = price
-                    cheap_book['link'] = link
-                    cheap_book['image'] = image
+            keywords = [request, request.lower(), request.upper()]
+            for keyword in keywords:
+                if (keyword in name and ('Плакат' not in name and 'плакат' not in name and 'Обложка' not in name and 'обложка' not in name)):
+                    # далее находим самую дешевую
+                    price = int(i.find('div',class_='price price--ruble').text)
+                    if (price < min_price):
+
+                        link = 'https://fkniga.ru' + i.find('div', class_='card__body').find('a').get('href')
+                        try:
+                            image = 'https://fkniga.ru' + i.find('div', class_='card__photo').find('img').get('src')
+                        except:
+                            image = 'https://www.allianceplast.com/wp-content/uploads/2017/11/no-image.png'
+
+                        cheap_book['name'] = name
+                        cheap_book['price'] = price
+                        cheap_book['link'] = link
+                        cheap_book['image'] = image
+                    else:
+                        continue
+                else:
+                    continue
 
     # если не удается - даем сигнал о том, что не нужно проверять эту переменную
     except Exception as e:
