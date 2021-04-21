@@ -42,7 +42,12 @@ def main(request):
 
     # если все неудачно
     except Exception as e:
-        cheap_book['price'] = None
-        print(f'[Polka23 Exception]: {e}')
+        try:
+            title = soup.find('div',class_='contentos').text
+            print('[Polka23 Exception]: Книга не найдена')
+            cheap_book['price'] = None
+        except:
+            cheap_book['price'] = None
+            print(f'[Polka23 Exception]: {e}')
 
     return cheap_book
