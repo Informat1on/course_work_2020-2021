@@ -51,5 +51,3 @@ def main(request):
         print(f'[Chitaina Exception]: {e}')
 
     return cheap_book
-
-print(main('Не ной'))
