@@ -24,9 +24,13 @@ def main(request):
             # если автор нужный
             if (author.upper().startswith(book_author.upper()) or author.upper().endswith(book_author.upper())):
                 try:
-                    price = int(item.find('span', class_='numbers').find('strong').text.split(' ')[0])
+                    price1  = item.find('span', class_='numbers').find('strong').text
+                    price = int(price1[:price1.find(' р.')].replace('₽','').replace(' ',''))
+                    # price = int(item.find('span', class_='numbers').find('strong').text.split(' ')[0])
                 except AttributeError:
-                    price = int(item.find('span', class_='numbers').text.split(' ')[0])
+                    price1 = item.find('span', class_='numbers').text
+                    price = int(price1[:price1.find(' р.')].replace('₽','').replace(' ',''))
+                    # price = int(item.find('span', class_='numbers').text.split(' ')[0])
                 # если цена меньше минимальной
                 if (price < min_price):
                     min_price = price
