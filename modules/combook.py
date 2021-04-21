@@ -33,13 +33,14 @@ def main(string):
                     # иначе в наличии
                     pass
 
-                name = item.find('img').get('title')
-                keywords = [request, request.lower(), request.upper()]
+                name = item.find('img').get('title').replace('\n','').replace('  ','')
+                # name = item.find('span',class_='name').find('span').text
+                keywords = [string, string.lower(), string.upper()]
                 for keyword in keywords:
-                    if (keyword in name and ('Плакат' not in name or 'плакат' not in name or 'Обложка' not in name or 'обложка' not in name )):
+                    if (keyword in name and ('Плакат' not in name and 'плакат' not in name and 'Обложка' not in name and 'обложка' not in name )):
                         price = int(float(item.find('div',class_='price').get('product_price')))
                         if (price < min_price):
-                            min_price  = price
+                            min_price = price
 
                             link = 'https://www.combook.ru' + item.find('a').get('href')
                             image = 'https://www.combook.ru' + item.find('img').get('src')
@@ -60,4 +61,3 @@ def main(string):
 
 
     return cheap_book
-# при запросе не ной находит обложку для паспорта. нужно исправить
