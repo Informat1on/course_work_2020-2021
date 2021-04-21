@@ -44,6 +44,10 @@ def main(request):
                 else:
                     continue
     # если случилось что то - печатаем ошибку
+    except IndexError:
+        cheap_book['price'] = None
+        print(f'[Mir-shkolnika Exception]: Книга не найдена')
+
     except Exception as e:
         cheap_book['price'] = None
         print(f'[Mir-shkolnika Exception]: {e}')
