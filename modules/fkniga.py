@@ -23,7 +23,7 @@ def main(request):
             for keyword in keywords:
                 if (keyword in name and ('Плакат' not in name and 'плакат' not in name and 'Обложка' not in name and 'обложка' not in name)):
                     # далее находим самую дешевую
-                    price = int(i.find('div',class_='price price--ruble').text)
+                    price = int(i.find('div',class_='price price--ruble').text.replace(' ',''))
                     if (price < min_price):
 
                         link = 'https://fkniga.ru' + i.find('div', class_='card__body').find('a').get('href')
