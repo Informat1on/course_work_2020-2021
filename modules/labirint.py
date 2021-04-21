@@ -66,6 +66,10 @@ def main(book_name):
                             i.find('a', attrs={'class': 'product-title-link'})['href'])
                         # достаю картинку
                         image = i.find('a', attrs={'class': 'cover'}).find('img').get('src')
+                        if (image == 'https://img.labirint.ru/design/emptycover-big.svg'):
+                            image = 'https://www.allianceplast.com/wp-content/uploads/2017/11/no-image.png'
+                        else:
+                            pass
 
                         # добавляю либо перезаписываю
                         cheap_book['name'] = full_name
