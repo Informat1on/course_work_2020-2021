@@ -17,7 +17,7 @@ def main(request):
             keywords = [request, request.lower(), request.upper()]
             try:
                 for keyword in keywords:
-                    if (keyword in name and ('Плакат' not in name or 'плакат' not in name or 'Обложка' not in name or 'обложка' not in name)):
+                    if (keyword in name and ('Плакат' not in name and 'плакат' not in name and 'Обложка' not in name and 'обложка' not in name)):
                         price = int(item.find_all('bdi')[1].text.split('\xa0')[0])
                         # тк мы ищем минимальную цену, то сравниваем
                         if (price < min_price):
