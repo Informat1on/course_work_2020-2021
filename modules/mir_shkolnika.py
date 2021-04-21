@@ -23,21 +23,26 @@ def main(request):
                 price = int(price[0].text)
 
             # если цена меньше минимальной
-            if (price < min_price):
-                min_price = price
-                # достаю нужные данные
-                name = item.find('span', class_='name_tovar').text
-                link = 'http://www.uchebnik.com' + item.find('a').get('href')
-                image = 'http://www.uchebnik.com' + item.find('img').get('src')
+            keywords = [request, request.lower(), request.upper()]
+            name = item.find('span', class_='name_tovar').text
+            for keyword in keywords:
+                if (keyword in name and ('Плакат' not in name and 'плакат' not in name and 'Обложка' not in name and 'обложка' not in name)):
+                    if (price < min_price):
+                        min_price = price
+                        # достаю нужные данные
+                        link = 'http://www.uchebnik.com' + item.find('a').get('href')
+                        image = 'http://www.uchebnik.com' + item.find('img').get('src')
 
-                # добавляю в словарь
-                cheap_book['name'] = name
-                cheap_book['price'] = price
-                cheap_book['link'] = link
-                cheap_book['image'] = image
+                        # добавляю в словарь
+                        cheap_book['name'] = name
+                        cheap_book['price'] = price
+                        cheap_book['link'] = link
+                        cheap_book['image'] = image
 
-            else:
-                continue
+                    else:
+                        continue
+                else:
+                    continue
     # если случилось что то - печатаем ошибку
     except Exception as e:
         cheap_book['price'] = None
