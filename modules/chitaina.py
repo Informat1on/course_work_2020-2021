@@ -15,10 +15,18 @@ def main(request):
         items = soup.find_all('div',class_='shell')
         # делаю перебор элементов
         for item in items:
-            author = item.find('span',class_='designation').find('span').text
+            # пытаюсь найти автора книги
+            try:
+                author = item.find('span',class_='designation').find('span').text
+            # если такого нет, то пропускаю
+            except:
+                continue
             # если автор нужный
             if (author.upper().startswith(book_author.upper()) or author.upper().endswith(book_author.upper())):
-                price = int(item.find('span',class_='numbers').text.split(' ')[0])
+                try:
+                    price = int(item.find('span', class_='numbers').find('strong').text.split(' ')[0])
+                except AttributeError:
+                    price = int(item.find('span', class_='numbers').text.split(' ')[0])
                 # если цена меньше минимальной
                 if (price < min_price):
                     min_price = price
@@ -43,3 +51,5 @@ def main(request):
         print(f'[Chitaina Exception]: {e}')
 
     return cheap_book
+
+print(main('Не ной'))
