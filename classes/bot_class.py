@@ -21,6 +21,8 @@ class FindBookBot:
         self.bot = telegram.Bot(token=bot_token)  # создаю бота
         self.updater = Updater(token=bot_token)  # добавляем апдейтер
         self.dispatcher = self.updater.dispatcher  # добавляем диспатчер
+        self.message_id = '' #id удаляемого сообщения
+        self.arr = [] #массив эл-ов
         # обьяляю состояния
         self.BUTTON_BEGIN, self.BOOK_NAME, self.SEARCH, self.END = range(4)
 
@@ -51,7 +53,8 @@ class FindBookBot:
         self.dispatcher.add_handler(conv_handler)
         # лог всех ошибок
         self.dispatcher.add_error_handler(self.error)
-        # self.dispatcher.add_handler(callbackqueryhandler.CallbackQueryHandler(self.button))
+        # query handler
+        self.dispatcher.add_handler(callbackqueryhandler.CallbackQueryHandler(self.callback_butt))
         self.updater.start_polling()
 
     # функция приветствия
@@ -81,8 +84,9 @@ class FindBookBot:
         book_name = update.message.text
         print(f'Начало поиска книг по названию {book_name}')
 
-        self.bot.send_message(text="Ищу книгу", chat_id=update.message.chat.id)
-        self.bot.send_message(text="🔍", chat_id=update.message.chat.id)
+        self.bot.send_message(text="Ищу книгу 🔍", chat_id=update.message.chat.id)
+        # self.bot.send_message(text="🔍", chat_id=update.message.chat.id)
+
         # кидаю в переменную лабиринт словарь с единственным элементом - смая дешевая книга и ее метаданные
         # присваиваю переменным словари, в которых находятся самые дешевае книги и их параметры
 
@@ -94,15 +98,15 @@ class FindBookBot:
         labirint = lbrn.main(book_name)
         mir_shkolnika = mrshk.main(book_name)
         polka23 = pl23.main(book_name)
-        arr = [
+        self.arr = [
             bookvoed, chitaina, combook, fitabooks, fkniga, labirint, mir_shkolnika, polka23
         ]
 
         cheap_book = {}
         cheap_book['price'] = 999999
 
-        for i in arr:
-            print(i)
+        for i in self.arr:
+            # print(i)
             try:
                 if (i['price'] is not None and i['price'] < cheap_book['price']):
                     cheap_book = i
@@ -111,54 +115,61 @@ class FindBookBot:
             except:
                 pass
 
-        print(cheap_book)
-        # придумать обработку исключения, если где то нет данных, то вывести другой магазин
-        # переработать условия и циклы для корректного вывода
-        # где цена меньше там и выбираем
-        # try:
-        #     if labirint['price'] < chitai_gorod['price']:
-        #         decision = labirint
-        #         print(f"Цена на Лабиринт {labirint['price']} < цена на Читай Город {chitai_gorod['price']}")
-        #
-        #     else:
-        #         decision = chitai_gorod
-        #         print(f"Цена на Лабиринт {labirint['price']} > цена на Читай Город {chitai_gorod['price']}")
-        # except:
-        #     decision = self.findNone(chitai_gorod,labirint)[1]
-        #     print(decision)
-        #
-        # # если нашло книгу
-        # if decision is not None:
-        #     # update.message.reply_text(labirint['name'])
-        #     self.bot.send_photo(photo=decision['image'],
-        #                         caption=f"{decision['name']}\n[Ссылка на книгу]({decision['link']})\nЦена книги: {decision['price']}₽",
-        #                         chat_id=update.message.chat.id, parse_mode='Markdown')
-        # # иначе
-        # else:
-        #     self.bot.send_message(text="По указанному названию книг не найдено 😥", chat_id=update.message.chat.id)
-        #
+        # если нашло хоть 1 книгу
+        if (cheap_book['price'] < 999999):
+            print(cheap_book)
+            wrong_button = InlineKeyboardButton(text='Не та книга ? :c',callback_data='wrong')
+            # self.bot.send_photo(photo=cheap_book['image'],chat_id=update.message.chat.id)
+            self.bot.send_message(
+                # photo=cheap_book['image'],
+                text=f"{cheap_book['name']}\n[Ссылка на книгу]({cheap_book['link']})\nЦена книги: {cheap_book['price']}₽",
+                chat_id=update.message.chat.id, parse_mode='Markdown',reply_markup=InlineKeyboardMarkup([[wrong_button]]))
+        # если не нашло ни одной
+        else:
+            self.bot.send_message(text=f"По указанному названию '{book_name}' книг не найдено 😥", chat_id=update.message.chat.id)
+
+
         # # нужно вывести клавиатуру с надписью "найти снова"
         # # поработать с reply markup
-        # self.bot.send_message(text="🔍 Для того, чтобы повторить поиск, введите название книги ниже: ",
-        #                       chat_id=update.message.chat.id)
+        self.bot.send_message(text="🔍 Для того, чтобы повторить поиск, введите название книги ниже: ",
+                              chat_id=update.message.chat.id)
 
     def search(self, update, context):
         pass
 
-    def findNone(self,arg1,arg2):
-        # если в переменных есть значения
-        if (bool(arg1) and bool(arg2) == True):
-            return False
-        # иначе есть какое то значение false
+    def callback_butt(self,update,context):
+        query = update.callback_query
+
+        # если нашло неправильную книгу
+        if (query.data == 'wrong'):
+            reply_markup = []
+            for i in range(len(self.arr)):
+                if (self.arr[i].keys()):
+                    # print(i)
+                    # print(i['name'])
+                    try:
+                        reply_markup.append(
+                            [InlineKeyboardButton(text=f"{self.arr[i]['name']} - {self.arr[i]['price']}₽", callback_data=str(i))])
+                    except:
+                        pass
+
+            query.edit_message_text(text="Выберите книгу",reply_markup=InlineKeyboardMarkup(reply_markup))
+
+
+        try:
+            if (int(query.data) >= 0 and int(query.data) <= len(self.arr)):
+                # отправить заново карточку с книгой
+                wrong_button = InlineKeyboardButton(text='Не та книга ? :c', callback_data='wrong')
+                query.edit_message_text(
+                    # photo=cheap_book['image'],
+                    text=f"{self.arr[int(query.data)]['name']}\n[Ссылка на книгу]({self.arr[int(query.data)]['link']})\nЦена книги: {self.arr[int(query.data)]['price']}₽",
+                    parse_mode='Markdown',
+                    reply_markup=InlineKeyboardMarkup([[wrong_button]]))
+
+        except:
+            pass
         else:
-            # если первый аргумент пустой
-            if bool(arg1) == False:
-                return True, arg2
-            #
-            elif bool(arg2) == False:
-                return True, arg1
-            else:
-                return True
+            pass
 
     # функция отмены
     def cancel(self, update, context):
