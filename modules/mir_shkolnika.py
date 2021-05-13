@@ -17,10 +17,10 @@ def main(request):
             price = item.find_all('span',class_='item_price')
             # если она со скидкой, то кладу в пееременную цену со скидкой
             if (len(price) > 1):
-                price = int(price[1].text)
+                price = int(price[1].text.replace(' ',''))
             # если скидки нет
             else:
-                price = int(price[0].text)
+                price = int(price[0].text.replace(' ',''))
 
             # если цена меньше минимальной
             keywords = [request, request.lower(), request.upper()]
