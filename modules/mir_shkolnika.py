@@ -3,6 +3,7 @@ from bs4 import BeautifulSoup
 
 def main(request):
     cheap_book = {}
+    all_books = []
     min_price = 9999999
 
     source = requests.get(f'http://www.uchebnik.com/katalog/?items_per_page=100&filter%5Bsearch%5D={request}').text
@@ -27,11 +28,14 @@ def main(request):
             name = item.find('span', class_='name_tovar').text
             for keyword in keywords:
                 if (keyword in name and ('Плакат' not in name and 'плакат' not in name and 'Обложка' not in name and 'обложка' not in name)):
+                    # достаю нужные данные
+                    link = 'http://www.uchebnik.com' + item.find('a').get('href')
+                    image = 'http://www.uchebnik.com' + item.find('img').get('src')
+
+                    # добавляю все книги в определенный массив
+                    all_books.append({'name': name, 'price': price, 'link': link, 'image': image})
                     if (price < min_price):
                         min_price = price
-                        # достаю нужные данные
-                        link = 'http://www.uchebnik.com' + item.find('a').get('href')
-                        image = 'http://www.uchebnik.com' + item.find('img').get('src')
 
                         # добавляю в словарь
                         cheap_book['name'] = name
@@ -52,4 +56,4 @@ def main(request):
         cheap_book['price'] = None
         print(f'[Mir-shkolnika Exception]: {e}')
 
-    return cheap_book
+    return cheap_book,all_books

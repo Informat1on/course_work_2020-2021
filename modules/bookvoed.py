@@ -3,6 +3,7 @@ from bs4 import BeautifulSoup
 
 def main(request):
     cheap_book = {}
+    all_books = []
     min_price = 999999
 
     source = requests.get(f'https://www.bookvoed.ru/books?q={request}&ishop=true&in_shop=true&pod=true&desc=1&order=relevancy&lang=rus').text
@@ -30,13 +31,17 @@ def main(request):
                     except:
                         continue
 
+                    # получаю имя, ссылку, картину
+                    name = item.find('a', class_='eq').text.replace('  ', '').replace('\n', '')
+                    link = item.find('a', class_='eq').get('href')
+                    image = 'https://www.bookvoed.ru' + item.find('img').get('src')
+
+                    # добавляю все книги в определенный массив
+                    all_books.append({'name':name,'price':price,'link':link,'image':image})
+
                     # ищу самый дешевый товар
                     if (price < min_price):
                         min_price = price
-                        # получаю имя, ссылку, картину
-                        name = item.find('a',class_='eq').text.replace('  ','').replace('\n','')
-                        link = item.find('a',class_='eq').get('href')
-                        image = 'https://www.bookvoed.ru' + item.find('img').get('src')
 
                         # добавляю в словарь
                         cheap_book['name'] = name
@@ -53,4 +58,4 @@ def main(request):
         cheap_book['price'] = None
         print(f'[Bookvoed Exception]: {e}')
 
-    return cheap_book
+    return cheap_book,all_books

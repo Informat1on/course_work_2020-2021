@@ -3,6 +3,7 @@ from bs4 import BeautifulSoup
 
 def main(request):
     cheap_book = {}
+    all_books = []
     min_price = 9999999
 
     source = requests.get(f'https://polka23.ru/?s={request}').text
@@ -22,12 +23,15 @@ def main(request):
                 # если это тот автор, то
                 if (author.upper().startswith(book_author.upper()) or author.upper().endswith(book_author.upper())):
                     price = int(item.find('span',class_='noredPrice').text.split(' ')[0])
+                    # получаю нужные данные
+                    name = item.find('span').text
+                    link = item.find('a').get('href')
+                    image = item.find('img').get('src')
+
+                    # добавляю все книги в определенный массив
+                    all_books.append({'name': name, 'price': price, 'link': link, 'image': image})
                     if (price < min_price):
                         min_price = price
-                        # получаю нужные данные
-                        name = item.find('span').text
-                        link = item.find('a').get('href')
-                        image = item.find('img').get('src')
 
                         # добавляю в словарь
                         cheap_book['name'] = name
@@ -50,4 +54,4 @@ def main(request):
             cheap_book['price'] = None
             print(f'[Polka23 Exception]: {e}')
 
-    return cheap_book
+    return cheap_book,all_books

@@ -6,6 +6,7 @@ def main(request):
     soup = BeautifulSoup(source,'lxml')
 
     cheap_book = {}
+    all_books = []
     # ставлю максимальную цену, чтобы дальше сравнивать
     min_price = 99999999
 
@@ -24,13 +25,18 @@ def main(request):
                 if (keyword in name and ('Плакат' not in name and 'плакат' not in name and 'Обложка' not in name and 'обложка' not in name)):
                     # далее находим самую дешевую
                     price = int(i.find('div',class_='price price--ruble').text.replace(' ',''))
-                    if (price < min_price):
 
-                        link = 'https://fkniga.ru' + i.find('div', class_='card__body').find('a').get('href')
-                        try:
-                            image = 'https://fkniga.ru' + i.find('div', class_='card__photo').find('img').get('src')
-                        except:
-                            image = 'https://www.allianceplast.com/wp-content/uploads/2017/11/no-image.png'
+                    link = 'https://fkniga.ru' + i.find('div', class_='card__body').find('a').get('href')
+                    try:
+                        image = 'https://fkniga.ru' + i.find('div', class_='card__photo').find('img').get('src')
+                    except:
+                        image = 'https://www.allianceplast.com/wp-content/uploads/2017/11/no-image.png'
+
+                    # добавляю все книги в определенный массив
+                    all_books.append({'name': name, 'price': price, 'link': link, 'image': image})
+
+                    if (price < min_price):
+                        min_price = price
 
                         cheap_book['name'] = name
                         cheap_book['price'] = price
@@ -46,4 +52,4 @@ def main(request):
         cheap_book['price'] = None
         print(f'[Fkniga Exception]: {e}')
 
-    return cheap_book
+    return cheap_book,all_books

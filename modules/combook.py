@@ -10,6 +10,7 @@ def main(string):
         request += '%' + hexy
 
     cheap_book = {}
+    all_books = []
     min_price = 9999999
 
     headers = {
@@ -39,11 +40,14 @@ def main(string):
                 for keyword in keywords:
                     if (keyword in name and ('Плакат' not in name and 'плакат' not in name and 'Обложка' not in name and 'обложка' not in name )):
                         price = int(float(item.find('div',class_='price').get('product_price')))
+                        link = 'https://www.combook.ru' + item.find('a').get('href')
+                        image = 'https://www.combook.ru' + item.find('img').get('src')
+
+                        # добавляю все книги в определенный массив
+                        all_books.append({'name': name, 'price': price, 'link': link, 'image': image})
+
                         if (price < min_price):
                             min_price = price
-
-                            link = 'https://www.combook.ru' + item.find('a').get('href')
-                            image = 'https://www.combook.ru' + item.find('img').get('src')
 
                             cheap_book['name'] = name
                             cheap_book['price'] = price
@@ -60,4 +64,4 @@ def main(string):
         cheap_book['price'] = None
 
 
-    return cheap_book
+    return cheap_book,all_books

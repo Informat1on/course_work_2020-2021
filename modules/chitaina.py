@@ -3,6 +3,7 @@ from bs4 import BeautifulSoup
 
 def main(request):
     cheap_book = {}
+    all_books = []
     min_price = 999999
 
     source = requests.get(f'https://chitaina.ru/search/result?setsearchdata=1&category_id=&include_subcat=1&xs_categories=&search_type=all&search={request}').text
@@ -31,13 +32,17 @@ def main(request):
                     price1 = item.find('span', class_='numbers').text
                     price = int(price1[:price1.find(' р.')].replace('₽','').replace(' ',''))
                     # price = int(item.find('span', class_='numbers').text.split(' ')[0])
+
+                # достаю нужные данные
+                name = item.find('strong').text
+                link = 'https://chitaina.ru' + item.find('a').get('href')
+                image = item.find('img').get('src')
+
+                # добавляю все книги в определенный массив
+                all_books.append({'name': name, 'price': price, 'link': link, 'image': image})
                 # если цена меньше минимальной
                 if (price < min_price):
                     min_price = price
-                    # достаю нужные данные
-                    name = item.find('strong').text
-                    link = 'https://chitaina.ru' + item.find('a').get('href')
-                    image = item.find('img').get('src')
 
                     # добавляю в словарь
                     cheap_book['name'] = name
@@ -54,4 +59,4 @@ def main(request):
         cheap_book['price'] = None
         print(f'[Chitaina Exception]: {e}')
 
-    return cheap_book
+    return cheap_book,all_books

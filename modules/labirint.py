@@ -3,6 +3,7 @@ from bs4 import BeautifulSoup
 
 def main(book_name):
     cheap_book = {}
+    all_books = []
 
     headers = {
         'sec-fetch-dest': 'document',
@@ -56,11 +57,7 @@ def main(book_name):
                         # тк она достается с переносом строки и знаком рубля, то сначала убираю знак рубля и ненужные пробелы, затем
                         # перевожу в инт, чтобы убрались переходы строки
                         price = int(price.replace(' ', '').replace('₽', ''))
-                        # если цена меньше минимальной
-                        if price < min_price:
-                            min_price = price
-                        else:
-                            continue
+
                         # достаю ссылку на книгу
                         link = 'https://www.labirint.ru' + str(
                             i.find('a', attrs={'class': 'product-title-link'})['href'])
@@ -70,6 +67,15 @@ def main(book_name):
                             image = 'https://www.allianceplast.com/wp-content/uploads/2017/11/no-image.png'
                         else:
                             pass
+
+                        # добавляю все книги в определенный массив
+                        all_books.append({'name': full_name, 'price': price, 'link': link, 'image': image})
+
+                        # если цена меньше минимальной
+                        if price < min_price:
+                            min_price = price
+                        else:
+                            continue
 
                         # добавляю либо перезаписываю
                         cheap_book['name'] = full_name
@@ -86,4 +92,4 @@ def main(book_name):
             # значит требуемой книги нет в наличии
             # return None
         # возвращаю словарь с самой дешевой книгой
-    return cheap_book
+    return cheap_book,all_books
