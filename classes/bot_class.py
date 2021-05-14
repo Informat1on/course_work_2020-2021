@@ -18,7 +18,9 @@ class FindBookBot:
         self.dispatcher = self.updater.dispatcher  # добавляем диспатчер
         self.cheap_arr = []  # массив дешевых книг с разных сайтов
         self.all_arr = [] # массив всех найденных книг по запросу
-        self.row_choice = 0 # id последней вывееденной книги. Нужно для корректной работы кнопки "Назад"
+        self.cheap_row_choice = 0 # id последней выведенной дешевой книги. Нужно для корректной работы кнопки "Назад"
+        self.all_row_choice = 0 # id последней выведенной книги из общего списка. Нужно для корректной работы кнопки "Назад"
+
         # обьяляю состояния
         self.BUTTON_BEGIN, self.BOOK_NAME, self.SEARCH, self.END = range(4)
 
@@ -104,7 +106,7 @@ class FindBookBot:
         for module in all_trash:
             for item in module:
                 try:
-                    if (item['price'] is not None and item['name'] is not None and item['link'] is not None):
+                    if item['price'] is not None and item['name'] is not None and item['link'] is not None:
                         self.all_arr.append(item)
                 except:
                     pass
@@ -115,7 +117,7 @@ class FindBookBot:
         for i in self.cheap_arr:
             # print(i)
             try:
-                if (i['price'] is not None and i['price'] < cheap_book['price']):
+                if i['price'] is not None and i['price'] < cheap_book['price']:
                     cheap_book = i
                 else:
                     continue
@@ -123,7 +125,9 @@ class FindBookBot:
                 pass
 
         # если нашло хоть 1 книгу
-        if (cheap_book['price'] < 999999):
+        if cheap_book['price'] < 999999:
+            self.cheap_row_choice = self.cheap_arr.index(cheap_book)
+            self.all_row_choice = None
             print(cheap_book)
             wrong_button = InlineKeyboardButton(text='Не та книга ? :c', callback_data='wrong')
             # self.bot.send_photo(photo=cheap_book['image'],chat_id=update.message.chat.id)
@@ -149,7 +153,7 @@ class FindBookBot:
         query = update.callback_query
 
         # если нашло неправильную книгу
-        if (query.data == 'wrong'):
+        if query.data == 'wrong':
             reply_markup = []
             for i in range(len(self.cheap_arr)):
                 if (self.cheap_arr[i].keys()):
@@ -157,7 +161,7 @@ class FindBookBot:
                     try:
                         reply_markup.append(
                             [InlineKeyboardButton(text=f"{self.cheap_arr[i]['name']} - {self.cheap_arr[i]['price']}₽",
-                                                  callback_data=str(i))])
+                                                  callback_data=f'cheap_item{i}')])
                     except:
                         pass
             # добавляю кнопку назад
@@ -170,16 +174,26 @@ class FindBookBot:
             query.edit_message_text(text="Выберите книгу", reply_markup=InlineKeyboardMarkup(reply_markup))
 
         # отработка кнопки "назад"
-        if (query.data == 'back'):
+        if query.data == 'back':
             # восстановить карточку с книгой
             wrong_button = InlineKeyboardButton(text='Не та книга ? :c', callback_data='wrong')
-            query.edit_message_text(
-                text=f"{self.cheap_arr[self.row_choice]['name']}\n[Ссылка на книгу]({self.cheap_arr[self.row_choice]['link']})\nЦена книги: {self.cheap_arr[self.row_choice]['price']}₽",
-                parse_mode='Markdown',
-                reply_markup=InlineKeyboardMarkup([[wrong_button]]))
+
+            if self.all_row_choice is not None:
+                query.edit_message_text(
+                    text=f"{self.all_arr[self.all_row_choice]['name']}\n[Ссылка на книгу]({self.all_arr[self.all_row_choice]['link']})\nЦена книги: {self.all_arr[self.all_row_choice]['price']}₽",
+                    parse_mode='Markdown',
+                    reply_markup=InlineKeyboardMarkup([[wrong_button]]))
+
+            elif self.cheap_row_choice is not None:
+                query.edit_message_text(
+                    text=f"{self.cheap_arr[self.cheap_row_choice]['name']}\n[Ссылка на книгу]({self.cheap_arr[self.cheap_row_choice]['link']})\nЦена книги: {self.cheap_arr[self.cheap_row_choice]['price']}₽",
+                    parse_mode='Markdown',
+                    reply_markup=InlineKeyboardMarkup([[wrong_button]]))
+
+
 
         # обработка кнопки "все найденные книги"
-        if (query.data == 'all_books'):
+        if query.data == 'all_books':
             reply_markup = []
             # по 7 книг должно отображаться
             for i in range(20):
@@ -190,18 +204,20 @@ class FindBookBot:
             query.edit_message_text(text="Выберите книгу", reply_markup=InlineKeyboardMarkup(reply_markup))
 
         # обработка страниц
-        if (query.data.startswith('page')):
+        if query.data.startswith('page'):
             page_number = int(query.data.split('e')[1])  #номер страницы
-            total = len(self.all_arr)  #общее количество книг
+            total_books = len(self.all_arr)  #общее количество книг
 
             # количество страниц
-            if (total % 7 == 0):
-                total = total // 7
+            if total_books % 7 == 0:
+                total_pages = total_books // 7
+            elif total_books < 7:
+                total_pages = 1
             else:
-                total = total // 7 + 1
+                total_pages = total_books // 7 + 1
 
             # если номер страницы меньше 1 и больше максимального
-            if (page_number > total or page_number < 1):
+            if page_number > total_pages or page_number < 1:
                 return
 
             # стрелки управления
@@ -210,37 +226,59 @@ class FindBookBot:
                 InlineKeyboardButton(text="<", callback_data=f"page{page_number-1}"),
                 InlineKeyboardButton(text="🏠", callback_data="wrong"),
                 InlineKeyboardButton(text=">", callback_data=f"page{page_number+1}"),
-                InlineKeyboardButton(text=">>", callback_data=f"page{total}")
+                InlineKeyboardButton(text=">>", callback_data=f"page{total_pages}")
             ]
             # итоговая клавиатура
             reply_markup = []
 
             # по 7 книг должно отображаться
             # вывожу 7 в зависимости от общего количества
-            for i in range((page_number-1)*7,page_number*7):
-                reply_markup.append(
-                    [InlineKeyboardButton(text=f"{self.all_arr[i]['name']} - {self.all_arr[i]['price']}₽",
-                                          callback_data=f"item{i}")])
+
+            # если это последняя страница
+            if page_number == total_pages:
+                for i in range((page_number - 1) * 7, total_books):
+                    reply_markup.append(
+                        [InlineKeyboardButton(text=f"{self.all_arr[i]['name']} - {self.all_arr[i]['price']}₽",
+                                              callback_data=f"all_item{i}")])
+
+            # если это не последняя страница
+            else:
+                for i in range((page_number-1)*7, page_number*7):
+                    reply_markup.append(
+                        [InlineKeyboardButton(text=f"{self.all_arr[i]['name']} - {self.all_arr[i]['price']}₽",
+                                              callback_data=f"all_item{i}")])
 
             # редактирую изначальное сообщение
             # добавляю снизу стрелки
             reply_markup.append(pages)
             query.edit_message_text(text=f"Все найденные книги по запросу\nСтраница {page_number}", reply_markup=InlineKeyboardMarkup(reply_markup))
 
-        # если нажали на кнопку из меню книг
-        try:
-            if (int(query.data) >= 0 and int(query.data) <= len(self.cheap_arr)):
-                # запоминаю какую книгу выбрали
-                self.row_choice = int(query.data)
-                # отправить заново карточку с книгой
-                wrong_button = InlineKeyboardButton(text='Не та книга ? :c', callback_data='wrong')
-                query.edit_message_text(
-                    text=f"{self.cheap_arr[int(query.data)]['name']}\n[Ссылка на книгу]({self.cheap_arr[int(query.data)]['link']})\nЦена книги: {self.cheap_arr[int(query.data)]['price']}₽",
-                    parse_mode='Markdown',
-                    reply_markup=InlineKeyboardMarkup([[wrong_button]]))
+        # если нажали кнопку из меню всех книг
+        if query.data.startswith('all_item'):
+            all_book_id = int(query.data.split('m')[1])  #номер страницы
 
-        except:
-            pass
+            # запоминаю какую книгу выбрали
+            self.all_row_choice = int(query.data.split('m')[1])
+            self.cheap_row_choice = None
+            # отправить заново карточку с книгой
+            wrong_button = InlineKeyboardButton(text='Не та книга ? :c', callback_data='wrong')
+            query.edit_message_text(
+                text=f"{self.all_arr[all_book_id]['name']}\n[Ссылка на книгу]({self.all_arr[all_book_id]['link']})\nЦена книги: {self.all_arr[all_book_id]['price']}₽",
+                parse_mode='Markdown',
+                reply_markup=InlineKeyboardMarkup([[wrong_button]]))
+
+        # если нажали на кнопку из меню книг
+        if query.data.startswith('cheap_item'):
+            # запоминаю какую книгу выбрали
+            self.cheap_row_choice = int(query.data.split('m')[1])
+            self.all_row_choice = None
+            # отправить заново карточку с книгой
+            wrong_button = InlineKeyboardButton(text='Не та книга ? :c', callback_data='wrong')
+            query.edit_message_text(
+                text=f"{self.cheap_arr[self.cheap_row_choice]['name']}\n[Ссылка на книгу]({self.cheap_arr[self.cheap_row_choice]['link']})\nЦена книги: {self.cheap_arr[self.cheap_row_choice]['price']}₽",
+                parse_mode='Markdown',
+                reply_markup=InlineKeyboardMarkup([[wrong_button]]))
+
         else:
             pass
 
