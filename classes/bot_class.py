@@ -76,9 +76,13 @@ class FindBookBot:
         # перехожу на другое состояние
         return self.BOOK_NAME
 
-    # функция обработки имени автора
+    # функция обработки запроса
     def book_name(self, update, context):
+        # обнуляю все перед новым запросом
+        self.all_arr = []
+        self.cheap_arr = []
 
+        # получаю название книги из запроса
         book_name = update.message.text
         print(f'Начало поиска книг по названию {book_name}')
 
