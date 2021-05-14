@@ -5,7 +5,7 @@ import logging
 # импортирую объекты для работы с клавиатурой
 from telegram import ReplyKeyboardRemove, ReplyKeyboardMarkup, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import (Updater, CommandHandler, MessageHandler, Filters, ConversationHandler, callbackqueryhandler)
-import time
+# импортирую свои модули
 from modules import bookvoed as bk, chitaina as cht, combook as cmbk, fitabooks as fitb, fkniga as fkng, \
     labirint as lbrn, polka23 as pl23, mir_shkolnika as mrshk
 
@@ -189,19 +189,6 @@ class FindBookBot:
                     text=f"{self.cheap_arr[self.cheap_row_choice]['name']}\n[Ссылка на книгу]({self.cheap_arr[self.cheap_row_choice]['link']})\nЦена книги: {self.cheap_arr[self.cheap_row_choice]['price']}₽",
                     parse_mode='Markdown',
                     reply_markup=InlineKeyboardMarkup([[wrong_button]]))
-
-
-
-        # обработка кнопки "все найденные книги"
-        if query.data == 'all_books':
-            reply_markup = []
-            # по 7 книг должно отображаться
-            for i in range(20):
-                reply_markup.append(
-                    [InlineKeyboardButton(text=f"{i}name - {i * 15}₽",
-                                          callback_data=f'page{i}')])
-            # редактирую изначальное сообщение
-            query.edit_message_text(text="Выберите книгу", reply_markup=InlineKeyboardMarkup(reply_markup))
 
         # обработка страниц
         if query.data.startswith('page'):
