@@ -18,6 +18,7 @@ class FindBookBot:
         self.dispatcher = self.updater.dispatcher  # добавляем диспатчер
         self.cheap_arr = []  # массив дешевых книг с разных сайтов
         self.all_arr = [] # массив всех найденных книг по запросу
+        self.row_choice = 0 # id последней вывееденной книги. Нужно для корректной работы кнопки "Назад"
         # обьяляю состояния
         self.BUTTON_BEGIN, self.BOOK_NAME, self.SEARCH, self.END = range(4)
 
@@ -80,7 +81,6 @@ class FindBookBot:
         print(f'Начало поиска книг по названию {book_name}')
 
         self.bot.send_message(text="Ищу книгу 🔍", chat_id=update.message.chat.id)
-        # self.bot.send_message(text="🔍", chat_id=update.message.chat.id)
 
         # кидаю в переменную лабиринт словарь с единственным элементом - смая дешевая книга и ее метаданные
         # присваиваю переменным словари, в которых находятся самые дешевае книги и их параметры
@@ -94,8 +94,20 @@ class FindBookBot:
         mir_shkolnika = mrshk.main(book_name)
         polka23 = pl23.main(book_name)
         self.cheap_arr = [
-            bookvoed, chitaina, combook, fitabooks, fkniga, labirint, mir_shkolnika, polka23
+            bookvoed[0], chitaina[0], combook[0], fitabooks[0], fkniga[0], labirint[0], mir_shkolnika[0], polka23[0]
         ]
+
+        all_trash = [
+            bookvoed[1], chitaina[1], combook[1], fitabooks[1], fkniga[1], labirint[1], mir_shkolnika[1], polka23[1]
+        ]
+
+        for module in all_trash:
+            for item in module:
+                try:
+                    if (item['price'] is not None and item['name'] is not None and item['link'] is not None):
+                        self.all_arr.append(item)
+                except:
+                    pass
 
         cheap_book = {}
         cheap_book['price'] = 999999
@@ -180,7 +192,7 @@ class FindBookBot:
         # обработка страниц
         if (query.data.startswith('page')):
             page_number = int(query.data.split('e')[1])  #номер страницы
-            total = 35  #общее количество книг
+            total = len(self.all_arr)  #общее количество книг
 
             # количество страниц
             if (total % 7 == 0):
@@ -205,10 +217,10 @@ class FindBookBot:
 
             # по 7 книг должно отображаться
             # вывожу 7 в зависимости от общего количества
-            for i in range(7):
+            for i in range((page_number-1)*7,page_number*7):
                 reply_markup.append(
-                    [InlineKeyboardButton(text=f"{i}Name - {i * 15}₽",
-                                          callback_data=f"item{i*page_number}")])
+                    [InlineKeyboardButton(text=f"{self.all_arr[i]['name']} - {self.all_arr[i]['price']}₽",
+                                          callback_data=f"item{i}")])
 
             # редактирую изначальное сообщение
             # добавляю снизу стрелки
