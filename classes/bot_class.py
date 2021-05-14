@@ -22,7 +22,7 @@ class FindBookBot:
         self.all_row_choice = 0 # id последней выведенной книги из общего списка. Нужно для корректной работы кнопки "Назад"
 
         # обьяляю состояния
-        self.BUTTON_BEGIN, self.BOOK_NAME, self.SEARCH, self.END = range(4)
+        self.BOOK_NAME, self.SEARCH, self.END = range(3)
 
         # Включить ведение журнала
         logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -40,7 +40,6 @@ class FindBookBot:
             entry_points=[CommandHandler('start', self.begin)],
 
             states={
-                self.BUTTON_BEGIN: [CommandHandler('start', self.begin), MessageHandler(Filters.text, self.button)],
                 self.BOOK_NAME: [CommandHandler('start', self.begin), MessageHandler(Filters.text, self.book_name)],
                 self.SEARCH: [CommandHandler('start', self.begin), MessageHandler(Filters.text, self.search)]
             },
@@ -57,24 +56,16 @@ class FindBookBot:
 
     # функция приветствия
     def begin(self, update, context):
-        reply_keyboard = [['Найти книгу 🔍']]
-        markup = ReplyKeyboardMarkup(reply_keyboard, resize_keyboard=True, one_time_keyboard=True)
+        # reply_keyboard = [['Найти книгу 🔍']]
+        # markup = ReplyKeyboardMarkup(reply_keyboard, resize_keyboard=True, one_time_keyboard=True)
         update.message.reply_text("Привет, меня зовут BestBookFinder! Для того, чтобы найти книгу,"
-                                  " нажми кнопку снизу: ", reply_markup=markup)
+                                  " напиши ее название снизу: ")
 
-        return self.BUTTON_BEGIN
+        return self.BOOK_NAME
 
     # функция обработки ошибок
     def error(self, update, context):
         self.logger.warning('Update "%s" caused error "%s"', update, context.error)
-
-    # функция обработки кнопки
-    def button(self, update, context):
-        # отправляю запрос о вводе названия и убираю клавиатуру
-        self.bot.send_message(text="Введите название книги: ", chat_id=update.message.chat.id,
-                              reply_markup=ReplyKeyboardRemove())
-        # перехожу на другое состояние
-        return self.BOOK_NAME
 
     # функция обработки запроса
     def book_name(self, update, context):
@@ -134,12 +125,13 @@ class FindBookBot:
             self.all_row_choice = None
             print(cheap_book)
             wrong_button = InlineKeyboardButton(text='Не та книга ? :c', callback_data='wrong')
+            donate = InlineKeyboardButton(text='Поддержать проект 💵', callback_data='donate')
             # self.bot.send_photo(photo=cheap_book['image'],chat_id=update.message.chat.id)
             self.bot.send_message(
                 # photo=cheap_book['image'],
                 text=f"{cheap_book['name']}\n[Ссылка на книгу]({cheap_book['link']})\nЦена книги: {cheap_book['price']}₽",
                 chat_id=update.message.chat.id, parse_mode='Markdown',
-                reply_markup=InlineKeyboardMarkup([[wrong_button]]))
+                reply_markup=InlineKeyboardMarkup([[wrong_button],[donate]]))
         # если не нашло ни одной
         else:
             self.bot.send_message(text=f"По указанному названию '{book_name}' книг не найдено 😥",
@@ -147,8 +139,10 @@ class FindBookBot:
 
         # # нужно вывести клавиатуру с надписью "найти снова"
         # # поработать с reply markup
-        self.bot.send_message(text="🔍 Для того, чтобы повторить поиск, введите название книги ниже: ",
+        self.bot.send_message(text="🔍 Для того, чтобы повторить поиск, введите команду /start",
                               chat_id=update.message.chat.id)
+
+        return ConversationHandler.END
 
     def search(self, update, context):
         pass
@@ -181,18 +175,19 @@ class FindBookBot:
         if query.data == 'back':
             # восстановить карточку с книгой
             wrong_button = InlineKeyboardButton(text='Не та книга ? :c', callback_data='wrong')
+            donate = InlineKeyboardButton(text='Поддержать проект 💵', callback_data='donate')
 
             if self.all_row_choice is not None:
                 query.edit_message_text(
                     text=f"{self.all_arr[self.all_row_choice]['name']}\n[Ссылка на книгу]({self.all_arr[self.all_row_choice]['link']})\nЦена книги: {self.all_arr[self.all_row_choice]['price']}₽",
                     parse_mode='Markdown',
-                    reply_markup=InlineKeyboardMarkup([[wrong_button]]))
+                    reply_markup=InlineKeyboardMarkup([[wrong_button],[donate]]))
 
             elif self.cheap_row_choice is not None:
                 query.edit_message_text(
                     text=f"{self.cheap_arr[self.cheap_row_choice]['name']}\n[Ссылка на книгу]({self.cheap_arr[self.cheap_row_choice]['link']})\nЦена книги: {self.cheap_arr[self.cheap_row_choice]['price']}₽",
                     parse_mode='Markdown',
-                    reply_markup=InlineKeyboardMarkup([[wrong_button]]))
+                    reply_markup=InlineKeyboardMarkup([[wrong_button],[donate]]))
 
         # обработка страниц
         if query.data.startswith('page'):
@@ -253,10 +248,11 @@ class FindBookBot:
             self.cheap_row_choice = None
             # отправить заново карточку с книгой
             wrong_button = InlineKeyboardButton(text='Не та книга ? :c', callback_data='wrong')
+            donate = InlineKeyboardButton(text='Поддержать проект 💵', callback_data='donate')
             query.edit_message_text(
                 text=f"{self.all_arr[all_book_id]['name']}\n[Ссылка на книгу]({self.all_arr[all_book_id]['link']})\nЦена книги: {self.all_arr[all_book_id]['price']}₽",
                 parse_mode='Markdown',
-                reply_markup=InlineKeyboardMarkup([[wrong_button]]))
+                reply_markup=InlineKeyboardMarkup([[wrong_button], [donate]]))
 
         # если нажали на кнопку из меню книг
         if query.data.startswith('cheap_item'):
@@ -265,10 +261,21 @@ class FindBookBot:
             self.all_row_choice = None
             # отправить заново карточку с книгой
             wrong_button = InlineKeyboardButton(text='Не та книга ? :c', callback_data='wrong')
+            donate = InlineKeyboardButton(text='Поддержать проект 💵', callback_data='donate')
             query.edit_message_text(
                 text=f"{self.cheap_arr[self.cheap_row_choice]['name']}\n[Ссылка на книгу]({self.cheap_arr[self.cheap_row_choice]['link']})\nЦена книги: {self.cheap_arr[self.cheap_row_choice]['price']}₽",
                 parse_mode='Markdown',
-                reply_markup=InlineKeyboardMarkup([[wrong_button]]))
+                reply_markup=InlineKeyboardMarkup([[wrong_button], [donate]]))
+
+        # обработка кнопки пожертвования
+        if query.data == 'donate':
+            pay = InlineKeyboardButton(text='Пожертвовать', url="https://qiwi.com/p/79996318004", callback_data='paid')
+            back = InlineKeyboardButton(text="Назад 🔙", callback_data='back')
+            query.edit_message_text(
+                text="Для того, чтобы поддержать проект, нажмите на кнопку снизу и Вас перенаправит на сайт платежной системы для внесения пожертвований",
+                parse_mode = 'Markdown',
+                reply_markup=InlineKeyboardMarkup([[pay], [back]])
+            )
 
         else:
             pass
