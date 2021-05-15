@@ -1,4 +1,6 @@
+# Подключаю библиотеку для работы с запросами
 import requests
+# Подключаю библиотеку для парсинга даннных на сайте
 from bs4 import BeautifulSoup
 
 def main(request):
@@ -35,9 +37,12 @@ def main(request):
                     # добавляю все книги в определенный массив
                     all_books.append({'name': name, 'price': price, 'link': link, 'image': image})
 
+                    # если найденная книга стоит меньше минимальной
                     if (price < min_price):
+                        # то теперь стоимость этой книги - минимальная переменная
                         min_price = price
 
+                        # добавление данных в словарь с самой дешевой книгой
                         cheap_book['name'] = name
                         cheap_book['price'] = price
                         cheap_book['link'] = link
@@ -52,4 +57,5 @@ def main(request):
         cheap_book['price'] = None
         print(f'[Fkniga Exception]: {e}')
 
-    return cheap_book,all_books
+    # возвращаем словарь с самой дешевой книгой и со всеми книгами
+    return cheap_book, all_books
