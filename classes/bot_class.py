@@ -56,8 +56,6 @@ class FindBookBot:
 
     # функция приветствия
     def begin(self, update, context):
-        # reply_keyboard = [['Найти книгу 🔍']]
-        # markup = ReplyKeyboardMarkup(reply_keyboard, resize_keyboard=True, one_time_keyboard=True)
         update.message.reply_text("Привет, меня зовут BestBookFinder! Для того, чтобы найти книгу,"
                                   " напиши ее название снизу: ")
 
@@ -90,22 +88,28 @@ class FindBookBot:
         labirint = lbrn.main(book_name)
         mir_shkolnika = mrshk.main(book_name)
         polka23 = pl23.main(book_name)
+
+        # массив с дешевыми книгами с разных сайтов
         self.cheap_arr = [
             bookvoed[0], chitaina[0], combook[0], fitabooks[0], fkniga[0], labirint[0], mir_shkolnika[0], polka23[0]
         ]
 
+        # временный массив ддля
         all_trash = [
             bookvoed[1], chitaina[1], combook[1], fitabooks[1], fkniga[1], labirint[1], mir_shkolnika[1], polka23[1]
         ]
 
+        # добавляю книги с каждого модуля в словарь
         for module in all_trash:
             for item in module:
                 try:
+                    # если есть цена у книги
                     if item['price'] is not None and item['name'] is not None and item['link'] is not None:
                         self.all_arr.append(item)
                 except:
                     pass
 
+        # словрь с самой дешевой книгой
         cheap_book = {}
         cheap_book['price'] = 999999
 
@@ -124,11 +128,12 @@ class FindBookBot:
             self.cheap_row_choice = self.cheap_arr.index(cheap_book)
             self.all_row_choice = None
             print(cheap_book)
+            # кнопка 'не та книга'
             wrong_button = InlineKeyboardButton(text='Не та книга ? :c', callback_data='wrong')
+            # кнопка доната
             donate = InlineKeyboardButton(text='Поддержать проект 💵', callback_data='donate')
-            # self.bot.send_photo(photo=cheap_book['image'],chat_id=update.message.chat.id)
+            # отправляю самую дешевую книгу
             self.bot.send_message(
-                # photo=cheap_book['image'],
                 text=f"{cheap_book['name']}\n[Ссылка на книгу]({cheap_book['link']})\nЦена книги: {cheap_book['price']}₽",
                 chat_id=update.message.chat.id, parse_mode='Markdown',
                 reply_markup=InlineKeyboardMarkup([[wrong_button],[donate]]))
@@ -137,11 +142,11 @@ class FindBookBot:
             self.bot.send_message(text=f"По указанному названию '{book_name}' книг не найдено 😥",
                                   chat_id=update.message.chat.id)
 
-        # # нужно вывести клавиатуру с надписью "найти снова"
-        # # поработать с reply markup
+        # в конце поиска выводится сообщение о том, как можно повторить поиск
         self.bot.send_message(text="🔍 Для того, чтобы повторить поиск, введите команду /start",
                               chat_id=update.message.chat.id)
 
+        # заканчиваю диалог с пользователем
         return ConversationHandler.END
 
     def search(self, update, context):
